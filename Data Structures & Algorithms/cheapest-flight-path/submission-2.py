@@ -1,0 +1,37 @@
+class Solution:
+    def findCheapestPrice(self, n: int, flights: List[List[int]],
+                          src: int, dst: int, k: int) -> int:
+
+        adj = collections.defaultdict(list)
+
+        for from_loc, to_loc, price in flights:
+            adj[from_loc].append((to_loc, price))
+
+        minHeap = [(0, 0, src)]
+        best = {(src, 0): 0}
+
+        while minHeap:
+            curr_price, curr_stops, source = heapq.heappop(minHeap)
+
+            if curr_price > best[(source, curr_stops)]:
+                continue
+
+            if source == dst:
+                return curr_price
+
+            for to_loc, next_price in adj[source]:
+                if curr_stops <= k:
+                    new_price = curr_price + next_price
+                    new_stops = curr_stops + 1
+
+                    if new_price < best.get(
+                        (to_loc, new_stops), float('inf')
+                    ):
+                        best[(to_loc, new_stops)] = new_price
+
+                        heapq.heappush(
+                            minHeap,
+                            (new_price, new_stops, to_loc)
+                        )
+
+        return -1
